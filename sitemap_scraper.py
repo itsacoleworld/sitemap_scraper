@@ -1,5 +1,18 @@
 from bs4 import BeautifulSoup
 import requests
+import csv
+
+# setup sitemap csv
+sitemap_csv = csv.writer(open('sitemap_url_list', 'w'))
+sitemap_csv.writerow(['Site Map URLs'])
+
+# variables
+
+## needs selenium
+needs_selenium = true
+
+## site url
+sitemap_url = 'https://lendedu.com/sitemap_index.xml'
 
 # gets sitemap url and returns error is staus code !=200
 def get_sitemap(url):
@@ -27,7 +40,7 @@ def is_sub_sitemap(s):
     else:
         return False
 
-# 
+#
 def parse_sitemap(s):
     sitemap = process_sitemap(s)
     result = []
@@ -39,7 +52,16 @@ def parse_sitemap(s):
             sub_sitemap = get_sitemap(candidate)
             for i in process_sitemap(sub_sitemap):
                 sitemap.append(i)
+                sitemap_csv([sitemap[i]])
         else:
             result.append(candidate)
 
     return result
+
+def main():
+    sitemap = get_sitemap('sitemap_url')
+    print '\n'.join(parse_sitemap(sitemap))
+
+
+if __name__ == '__main__':
+    main()
