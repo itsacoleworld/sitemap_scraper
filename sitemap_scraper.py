@@ -9,7 +9,7 @@ sitemap_csv.writerow(['Site Map URLs'])
 # variables
 
 ## needs selenium
-needs_selenium = true
+needs_selenium = 1
 
 ## site url
 sitemap_url = 'https://lendedu.com/sitemap_index.xml'
