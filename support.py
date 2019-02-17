@@ -18,20 +18,24 @@ def find_links(soup_text):
     return links
 
 # get soup text of url
-def get_soup(url):
-    request = get_request(url)
+def get_soup(request):
+    request = get_request(url, headers)
     if request:
         soup = BeautifulSoup(request.text, "html.parser")
     return soup
 
 
 # gets request and flags unsuccesful requests
-def get_request(url):
-    request = requests.get(url)
-    if check_request_status(request) == 200:
+def get_request(url, headers):
+    headers = {
+        'user-agent': 'f{headers}'}
+    try:
+        request = requests.get(url, headers=headers, timeout=10)
+        request_response = request.status_code
         return request
-    else:
-        print(f'Could not access {url}: {request}')
+    except Exception as ex:
+        print(str(ex))
+
 
 # check status code and return error
 def check_request_status(url):
