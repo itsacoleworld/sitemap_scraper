@@ -9,29 +9,44 @@ Generates csv file of sub sitemap urls
 from bs4 import BeautifulSoup
 import requests
 import csv
+import support
 
 # setup sitemap list csv file
-sub_sitemap_list_csv = csv.writer(open('generated_files/sitemap_url_list.csv', 'w'))
+sub_sitemap_list_csv = csv.writer(open('generated_files/sub_sitemap_list.csv', 'w'))
 sub_sitemap_list_csv.writerow(['Site Map URLs'])
 
-# get sitemap url and return error if staus code !=200
-def get_sitemap(sitemap_url):
-    get_sitemap_url = requests.get(sitemap_url)
+# generate sub sitemap list
+def get_sub_sitemap_list(sitemap_url, sitemap_excludes):
 
-    if get_sitemap_url.status_code == 200:
-        return get_sitemap_url.text
-    else:
-        print('Unable to fetch sitemap: %s.' % url)
+    # create a blank sitemap list array
+    sub_sitemap_list = []
 
-# searches for links in sitemap and returns array
-def process_sitemap(s):
-    soup = BeautifulSoup(s)
-    result = []
+    # gets sub sitemap soup
+    sitemap_soup = support.get_soup(sitemap_url)
 
-    for loc in soup.findAll('loc'):
-        result.append(loc.text)
+    # creates array of all links on sub sitemap page
+    sitemap_links = support.find_links(sitemap_soup)
 
-    return result
+    # loops through sub sitemap if true and appends links to new array
+    while sitemap_links:
+
+        # sets candidate to last array item
+        candidate = sitemap_links.pop()
+
+        # verifies url is a sitemap and is not excluded
+        if is_sub_sitemap(candidate) and include_sub_sitemap(candidate, sitemap_excludes):
+
+            # append sitemap url to sub sitemap list
+            sub_sitemap_list.append(candidate)
+
+        else:
+            print(f'Excluded Sub Sitemap: {candidate}')
+
+    # writes complete sub sitemap list to csv
+    write_sub_sitemap_list_csv(sub_sitemap_list)
+
+    # returns sub sitemap list
+    return sub_sitemap_list
 
 # check to see if url is a sub sitemap
 def is_sub_sitemap(s):
@@ -47,27 +62,7 @@ def include_sub_sitemap(s, sitemap_excludes):
     else:
         return True
 
-# write sitemap url list to csv
-def write_sub_sitemap_list_csv(sub_sitemap_url_list):
-    for i in sub_sitemap_url_list:
+# write sub sitemap url list to csv
+def write_sub_sitemap_list_csv(sub_sitemap_list):
+    for i in sub_sitemap_list:
         sub_sitemap_list_csv.writerow([i])
-
-
-# generate sub_sitemap list
-def get_sub_sitemap_list(sitemap_url, sitemap_excludes):
-
-    sub_sitemap_url_list = []
-    sitemap = process_sitemap(get_sitemap(sitemap_url))
-
-    while sitemap:
-        candidate = sitemap.pop()
-
-        if is_sub_sitemap(candidate) and include_sub_sitemap(candidate, sitemap_excludes):
-            # append sitemap url to sitemap list
-            sub_sitemap_url_list.append(candidate)
-
-        else:
-            print('Excluded Sub Sitemap : %s.' % candidate)
-
-    write_sub_sitemap_list_csv(sub_sitemap_url_list)
-    return sub_sitemap_url_list
