@@ -28,8 +28,9 @@ needs_selenium = False
 
 def main():
     sub_sitemap_list = sitemap.get_sub_sitemap_list(sitemap_url, sitemap_excludes)
-    post_list = posts.get_post_list(sub_sitemap_list[1:2])
+    post_list = posts.get_post_list(sub_sitemap_list)
     post_info = posts.get_post_info(post_list)
+
 
 
 
